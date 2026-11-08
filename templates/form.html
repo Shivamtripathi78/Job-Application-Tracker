@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% if application %}Edit Application{% else %}Add Application{% endif %}
+        | CareerTrack
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <a href="{{ url_for('index') }}" class="logo">
+            CareerTrack<span>.</span>
+        </a>
+
+        <a href="{{ url_for('index') }}" class="clear-btn">
+            ← Dashboard
+        </a>
+
+    </nav>
+
+    <main class="form-container">
+
+        <div class="form-heading">
+
+            <span class="eyebrow">APPLICATION MANAGEMENT</span>
+
+            <h1>
+                {% if application %}
+                    Edit Application
+                {% else %}
+                    Add New Application
+                {% endif %}
+            </h1>
+
+            <p>Keep your career opportunities organized.</p>
+
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="application-form">
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label>Company Name *</label>
+
+                    <input
+                        type="text"
+                        name="company"
+                        maxlength="100"
+                        placeholder="e.g. Google"
+                        value="{{ application.company if application else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Job Position *</label>
+
+                    <input
+                        type="text"
+                        name="position"
+                        maxlength="100"
+                        placeholder="e.g. Software Developer"
+                        value="{{ application.position if application else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Location</label>
+
+                    <input
+                        type="text"
+                        name="location"
+                        placeholder="e.g. Noida, Remote"
+                        value="{{ application.location if application else '' }}"
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Job Type</label>
+
+                    <select name="job_type">
+
+                        <option value="">Select Job Type</option>
+
+                        {% for item in ['Full-time', 'Part-time', 'Internship', 'Contract', 'Remote'] %}
+
+                            <option
+                                value="{{ item }}"
+                                {% if application and application.job_type == item %}selected{% endif %}
+                            >
+                                {{ item }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Application Date *</label>
+
+                    <input
+                        type="date"
+                        name="application_date"
+                        max="{{ today }}"
+                        value="{{ application.application_date if application else today }}"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label>Application Status</label>
+
+                    <select name="status">
+
+                        {% for status in statuses %}
+
+                            <option
+                                value="{{ status }}"
+                                {% if application and application.status == status %}selected{% elif not application and status == 'Applied' %}selected{% endif %}
+                            >
+                                {{ status }}
+                            </option>
+
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="field full-width">
+                    <label>Job Posting URL</label>
+
+                    <input
+                        type="url"
+                        name="job_link"
+                        placeholder="https://company.com/careers/job"
+                        value="{{ application.job_link if application else '' }}"
+                    >
+                </div>
+
+                <div class="field full-width">
+                    <label>Notes</label>
+
+                    <textarea
+                        name="notes"
+                        rows="5"
+                        placeholder="Add interview details, recruiter information, or reminders..."
+                    >{{ application.notes if application else '' }}</textarea>
+                </div>
+
+            </div>
+
+            <button type="submit" class="primary-btn submit-btn">
+
+                {% if application %}
+                    Update Application
+                {% else %}
+                    Save Application
+                {% endif %}
+
+            </button>
+
+        </form>
+
+    </main>
+
+    <footer>
+        CareerTrack — Stay organized. Stay focused.
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>CareerTrack | Job Application Tracker</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+    <nav class="navbar">
+
+        <a href="{{ url_for('index') }}" class="logo">
+            CareerTrack<span>.</span>
+        </a>
+
+        <a href="{{ url_for('add_application') }}" class="primary-btn">
+            + Add Application
+        </a>
+
+    </nav>
+
+    <main class="container">
+
+        <section class="welcome">
+
+            <div>
+                <span class="eyebrow">YOUR CAREER DASHBOARD</span>
+
+                <h1>Job Application Tracker</h1>
+
+                <p>
+                    Organize your job search and keep track
+                    of every opportunity.
+                </p>
+            </div>
+
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <span>Total Applications</span>
+                <h2>{{ statistics.total or 0 }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <span>Applied</span>
+                <h2>{{ statistics.applied or 0 }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <span>Under Review</span>
+                <h2>{{ statistics.review or 0 }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <span>Interviews</span>
+                <h2>{{ statistics.interviews or 0 }}</h2>
+            </div>
+
+            <div class="stat-card">
+                <span>Selected</span>
+                <h2 class="success-text">
+                    {{ statistics.selected or 0 }}
+                </h2>
+            </div>
+
+            <div class="stat-card">
+                <span>Rejected</span>
+                <h2 class="danger-text">
+                    {{ statistics.rejected or 0 }}
+                </h2>
+            </div>
+
+        </section>
+
+        <section class="applications-section">
+
+            <div class="section-heading">
+
+                <div>
+                    <h2>Your Applications</h2>
+                    <p>Manage and monitor your job opportunities.</p>
+                </div>
+
+                <span class="count">
+                    {{ applications|length }} Results
+                </span>
+
+            </div>
+
+            <form class="filters" method="GET">
+
+                <input
+                    type="search"
+                    name="q"
+                    placeholder="Search company or position..."
+                    value="{{ search }}"
+                >
+
+                <select name="status">
+
+                    <option value="">All Statuses</option>
+
+                    {% for status in statuses %}
+                        <option
+                            value="{{ status }}"
+                            {% if status_filter == status %}selected{% endif %}
+                        >
+                            {{ status }}
+                        </option>
+                    {% endfor %}
+
+                </select>
+
+                <button type="submit" class="primary-btn">
+                    Filter
+                </button>
+
+                {% if search or status_filter %}
+                    <a href="{{ url_for('index') }}" class="clear-btn">
+                        Clear
+                    </a>
+                {% endif %}
+
+            </form>
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+                        <tr>
+                            <th>COMPANY & POSITION</th>
+                            <th>LOCATION</th>
+                            <th>TYPE</th>
+                            <th>DATE APPLIED</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        {% for application in applications %}
+
+                            <tr>
+
+                                <td>
+                                    <strong>{{ application.company }}</strong>
+                                    <small>{{ application.position }}</small>
+                                </td>
+
+                                <td>
+                                    {{ application.location or '—' }}
+                                </td>
+
+                                <td>
+                                    {{ application.job_type or '—' }}
+                                </td>
+
+                                <td>
+                                    {{ application.application_date }}
+                                </td>
+
+                                <td>
+                                    <span class="status
+                                        {{ application.status|lower|replace(' ', '-') }}">
+                                        {{ application.status }}
+                                    </span>
+                                </td>
+
+                                <td>
+
+                                    <div class="actions">
+
+                                        <a href="{{ url_for('edit_application', application_id=application.id) }}"
+                                           class="edit-btn">
+                                            Edit
+                                        </a>
+
+                                        <form
+                                            action="{{ url_for('delete_application', application_id=application.id) }}"
+                                            method="POST"
+                                            onsubmit="return confirm('Delete this application?');"
+                                        >
+
+                                            <button type="submit"
+                                                    class="delete-btn">
+                                                Delete
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                            {% if application.notes %}
+                                <tr class="notes-row">
+                                    <td colspan="6">
+                                        <strong>Notes:</strong>
+                                        {{ application.notes }}
+                                    </td>
+                                </tr>
+                            {% endif %}
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="6" class="empty">
+                                    No applications found.
+                                    Add your first job application!
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <footer>
+        CareerTrack — Stay organized. Stay focused.
+    </footer>
+
+</body>
+</html>
